@@ -28,14 +28,15 @@
     "@nestjs/platform-express": "^6.7.2",
     "body-parser": "^1.19.0",
     "class-transformer": "^0.2.3",
-    "class-validator": "^0.11.0",
+    "class-validator": "^0.11.1",
     "mongoose": "^5.7.12",
     "passport": "^0.4.0",
     "passport-jwt": "^4.0.0",
     "passport-local": "^1.0.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.0",
-    "rxjs": "^6.5.3"
+    "rxjs": "^6.5.3",
+    "uuid": "^7.0.3"
   },
   "devDependencies": {
     "@nestjs/cli": "^6.9.0",
