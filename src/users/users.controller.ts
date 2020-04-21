@@ -2,8 +2,6 @@ import { Controller, Get, Post, Body, Param, Delete, HttpStatus } from '@nestjs/
 import { UsersService } from './users.service'
 import { User } from './users.interface'
 import { CreateUserDto } from './dtos/create-user.dto'
-import { ApiException } from '../common/exceptions/api.exceptions'
-import { ApiErrorCode } from 'src/common/enums/api-error-code.enum';
 
 @Controller('users')
 export class UsersController {
@@ -19,7 +17,7 @@ export class UsersController {
   async create(@Body() createUserDto: CreateUserDto) {
     const users = await this.findAll()
     if (users.find(user => user.username === createUserDto.username)) {
-      throw new ApiException('用户名已存在', ApiErrorCode.USER_NAME_INVALID, HttpStatus.BAD_REQUEST)
+      throw new Error('用户名已存在')
     }
     this.usersService.create(createUserDto)
   }
