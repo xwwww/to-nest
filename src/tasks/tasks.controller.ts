@@ -5,6 +5,7 @@ import { TaskStatus } from './task-status.enum'
 import { CreateTaskDto } from './dto/create-task.dto'
 import { GetTasksFilterDto } from './dto/get-tasks-filter.dto'
 import { TaskStatusValidationPipe } from './pipes/task-status-validation.pipe'
+import { ObjectID } from 'mongodb';
 
 @Catch()
 @Controller('tasks')
@@ -13,15 +14,12 @@ export class TasksController {
 
   @Get()
   getTasks(@Query(ValidationPipe) filterDto: GetTasksFilterDto): Promise<Task[]> {
-    if (Object.keys(filterDto).length) {
-      return this.tasksServices.getTasksWithFilters(filterDto)
-    } else {
-      return this.tasksServices.getAllTasks()
-    }
+    console.log(filterDto)
+    return this.tasksServices.getTasks(filterDto)
   }
 
   @Get('/:id')
-  getTaskById(@Param('id') id: string): Promise<Task> {
+  getTaskById(@Param('id') id: ObjectID): Promise<Task> {
     return this.tasksServices.getTaskById(id)
   }
 
@@ -31,16 +29,16 @@ export class TasksController {
     return this.tasksServices.createTask(createTaskDto)
   }
 
-  // @Delete('/:id')
-  // deleteTask(@Param('id') id: string): void {
-  //   this.tasksServices.deleteTask(id)
-  // }
+  @Delete('/:id')
+  deleteTask(@Param('id') id: ObjectID): Promise<void> {
+    return this.tasksServices.deleteTask(id)
+  }
 
-  // @Patch('/:id/status')
-  // updateTaskStatus(
-  //   @Param('id') id: string,
-  //   @Body('status', TaskStatusValidationPipe) status: TaskStatus
-  // ): Task {
-  //   return this.tasksServices.updateTaskStatus(id, status)
-  // }
+  @Patch('/:id/status')
+  updateTaskStatus(
+    @Param('id') id: ObjectID,
+    @Body('status', TaskStatusValidationPipe) status: TaskStatus
+  ):Promise<Task> {
+    return this.tasksServices.updateTaskStatus(id, status)
+  }
 }

@@ -5,6 +5,7 @@ import { GetTasksFilterDto } from './dto/get-tasks-filter.dto'
 import { InjectRepository } from '@nestjs/typeorm';
 import { TaskRespository } from './task.repository';
 import { TaskStatus } from './task-status.enum';
+import { ObjectID } from 'mongodb';
 
 @Injectable()
 export class TasksService {
@@ -13,24 +14,60 @@ export class TasksService {
     private taskRespository: TaskRespository,
   ) {}
 
-  async getAllTasks(): Promise<Task[]> {
-    return await this.taskRespository.find()
-  }
-
-  async getTasksWithFilters(filterDto: GetTasksFilterDto): Promise<Task[]> {
+  async getTasks(filterDto: GetTasksFilterDto): Promise<Task[]> {
     const { status, search } = filterDto
-    console.log(filterDto)
-    let tasks = this.getAllTasks()
-    // if (status) {
-    //   tasks = await this.taskRespository.find()
-    // }
-    // if (search) {
-    //   // tasks = await this.taskRespository.find()
-    // }
-    return tasks
+
+    let select = null
+
+    if(status && search) {
+      select = {
+        where: {
+          $and: [
+            {
+              status: { $in: [status] }
+            },
+            {
+              $or: [
+                {
+                  title: { $regex: search }
+                },
+                {
+                  description: { $regex: search }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+
+    if (status && !search) {
+      select = {
+        where: {
+          status: { $in: [status] }
+        }
+      }
+    }
+
+    if (!status && search) {
+      select = {
+        where: {
+          $or: [
+            {
+              title: { $regex: search }
+            },
+            {
+              description: { $regex: search }
+            }
+          ]
+        }
+      }
+    }
+
+    return this.taskRespository.find(select)
   }
 
-  async getTaskById(id: string): Promise<Task> {
+  async getTaskById(id: ObjectID): Promise<Task> {
     const found = await this.taskRespository.findOne(id);
 
     if (found) {
@@ -40,23 +77,20 @@ export class TasksService {
   }
 
   async createTask(createTaskDto: CreateTaskDto): Promise<Task> {
-    const { title, description } = createTaskDto
-    const task = new Task()
-    task.title = title
-    task.description = description
-    task.status = TaskStatus.OPEN
+    return this.taskRespository.createTask(createTaskDto)
+  }
+
+  async deleteTask(id: ObjectID): Promise<void> {
+    const exists = ObjectID.isValid(id) && await this.getTaskById(id);
+    if (exists) {
+      await this.taskRespository.delete(id);
+    }
+  }
+
+  async updateTaskStatus(id: ObjectID, status: TaskStatus): Promise<Task> {
+    const task = await this.getTaskById(id)
+    task.status = status
     await task.save()
     return task
   }
-
-  // deleteTask(id: string): void {
-  //   const found = this.getTaskById(id)
-  //   this.tasks = this.tasks.filter(task => task.id !== found.id)
-  // }
-
-  // updateTaskStatus(id: string, status: TaskStatus): Task {
-  //   const task = this.getTaskById(id)
-  //   task.status = status
-  //   return task
-  // }
 }
