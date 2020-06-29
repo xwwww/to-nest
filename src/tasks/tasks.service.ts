@@ -17,54 +17,54 @@ export class TasksService {
   async getTasks(filterDto: GetTasksFilterDto): Promise<Task[]> {
     const { status, search } = filterDto
 
-    let select = null
+    // let select = null
 
-    if(status && search) {
-      select = {
-        where: {
-          $and: [
-            {
-              status: { $in: [status] }
-            },
-            {
-              $or: [
-                {
-                  title: { $regex: search }
-                },
-                {
-                  description: { $regex: search }
-                }
-              ]
-            }
-          ]
-        }
-      }
-    }
+    // if(status && search) {
+    //   select = {
+    //     where: {
+    //       $and: [
+    //         {
+    //           status: { $in: [status] }
+    //         },
+    //         {
+    //           $or: [
+    //             {
+    //               title: { $regex: search }
+    //             },
+    //             {
+    //               description: { $regex: search }
+    //             }
+    //           ]
+    //         }
+    //       ]
+    //     }
+    //   }
+    // }
 
-    if (status && !search) {
-      select = {
-        where: {
-          status: { $in: [status] }
-        }
-      }
-    }
+    // if (status && !search) {
+    //   select = {
+    //     where: {
+    //       status: { $in: [status] }
+    //     }
+    //   }
+    // }
 
-    if (!status && search) {
-      select = {
-        where: {
-          $or: [
-            {
-              title: { $regex: search }
-            },
-            {
-              description: { $regex: search }
-            }
-          ]
-        }
-      }
-    }
+    // if (!status && search) {
+    //   select = {
+    //     where: {
+    //       $or: [
+    //         {
+    //           title: { $regex: search }
+    //         },
+    //         {
+    //           description: { $regex: search }
+    //         }
+    //       ]
+    //     }
+    //   }
+    // }
 
-    return this.taskRespository.find(select)
+    return this.taskRespository.getTasks(filterDto)
   }
 
   async getTaskById(id: ObjectID): Promise<Task> {
